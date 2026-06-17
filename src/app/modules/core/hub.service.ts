@@ -1,5 +1,5 @@
 
-import {of as observableOf, throwError as observableThrowError, Observable, BehaviorSubject, combineLatest} from 'rxjs';
+import {of as observableOf, throwError as observableThrowError, Observable, BehaviorSubject} from 'rxjs';
 
 import {catchError,  map, switchMap, first } from 'rxjs/operators';
 import { Injectable, Inject } from '@angular/core';
@@ -7,7 +7,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 
 
 import { environment } from 'environments/environment';
-import { AuthService} from 'app/modules/core/auth.service';
+import {CognitoUtil} from "app/modules/core/cognito.service";
 import { ApiErrorResponse, User, Office, OrgUnit, OrgUnitSearch, UserSearch } from './models/';
 
 @Injectable()
@@ -20,11 +20,10 @@ export class HubService {
 	public orgUnitTypes:string[] = [];
 	public venueTypes:any[] = [];
 	public officeRoles:Object = {};
-	constructor(private http: HttpClient, private authService: AuthService) {
+	constructor(private http: HttpClient, @Inject('cognitoMain') private cognitoMain: CognitoUtil) {
 		console.log("constructing hub service");
 		this.headers = new HttpHeaders({'Content-Type':  'application/json'});
-		
-		this.authService.getIdTokenSilently$().subscribe(
+		this.cognitoMain.getIdToken().subscribe(
 			(idToken: string)=>
 			{
 				this.setIdToken(idToken);
@@ -42,13 +41,10 @@ export class HubService {
 			}
 		);
 	}
-
 	
-	checkIdToken(options?): Observable<string>{
-		
-		return this.authService.getIdTokenSilently$(options).pipe(first(),
-			map((idToken:string) => {
-				//console.log('checkIdToken got new ID', idToken);
+	checkIdToken(): Observable<string>{
+		return this.cognitoMain.getIdToken().pipe(first(),
+			map((idToken) => {
 				if(idToken && idToken != this.idToken){
 					console.log('id token has changed');
 					console.log('old token', this.idToken);
@@ -70,35 +66,19 @@ export class HubService {
 		this.idToken = idToken;
 		this.currentIdToken.next(idToken);
 	}
-
-	resendConfirmEmail(){
-		return this.checkIdToken().pipe(switchMap(
-			(idToken) => {
-				return this.http.post(environment.hub.url+'user/resend-confirm',{},
-				{headers: this.headers,params:{}})
-					.pipe(map((response:any) => {console.log('resend response ',response); return response;}));
-			}
-		));
-	}
 	
 	getCurrentUser():Observable<User>{
 		//Current user depends on the current ID Token. Switchmap on the idToken so that we can update the user as needed
 		if(this.currentUser == null){
 			console.log('Constructing currentUser');
-			
-			this.currentUser= combineLatest([
-				this.currentIdToken.asObservable(),
-				this.authService.isVerified()
-			])
+			this.currentUser= this.currentIdToken.asObservable()
 			.pipe(switchMap(
-				([idToken,loggedIn]) => {
+				(idToken) => {
 					console.log('idToken currentUser Switchmap',idToken);
-					console.log('loggedIn?',loggedIn);
 					if(idToken == null){
 						return observableOf(null);
 					}
 					else{
-						if(loggedIn != 1) return observableOf(null);
 						return this.getUser('me',{offices: 1, children: 1}).pipe(
 							map(
 								(user) => {
@@ -286,25 +266,6 @@ export class HubService {
 		}
 		post['useOffice'] = officer.id;
 		return this.checkIdToken().pipe(switchMap(() => this.http.post<User>(environment.hub.url+'user',post,{headers: this.headers})));
-	}
-
-	public updateUser(user: User, newUser: User, officer:Office=null): Observable<any>{
-		let post = {};
-		let fields = ['name','nickname','address'];
-		for(let i = 0; i < fields.length; i++){
-			if(newUser[fields[i]]) post[fields[i]] = newUser[fields[i]];
-		}
-		if(officer && officer.id) post['useOffice'] = officer.id;
-		return this.checkIdToken().pipe(switchMap(() => this.http.put<User>(environment.hub.url+'user/'+user.id,post,{headers: this.headers})))
-		.pipe(switchMap(
-			(updateResponse: any, index: number) => {
-				if(user.id == this.currentUserId){
-					//we're updating our own user. Update the id token
-					console.log('Refreshing ID Token');
-					return this.checkIdToken({ignoreCache: true}).pipe(map((response:any) => { return updateResponse}));
-				}else return observableOf(updateResponse);
-			}
-		));
 	}
 	
 	

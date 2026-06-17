@@ -6,7 +6,6 @@ import { Location, PopStateEvent } from "@angular/common";
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { HubService } from 'app/modules/core/hub.service';
 import { CognitoUtil, LoginResponse } from 'app/modules/core/cognito.service';
-import { AuthService} from 'app/modules/core/auth.service';
 import { SubmenuService } from 'app/modules/core/submenu.service';
 import { SubmenuItem } from 'app/modules/core/submenu-item.model';
 
@@ -36,13 +35,13 @@ export class NavComponent implements OnInit {
 	public hubResponse: boolean = false;
 	public showNav: Boolean = false;
 	public submenuItems:SubmenuItem[];
-	constructor(private router: Router, private location: Location, @Inject('cognitoMain') private cognitoMain: CognitoUtil, public authService: AuthService, private hubService: HubService, private submenuService: SubmenuService) { }
+	constructor(private router: Router, private location: Location, @Inject('cognitoMain') private cognitoMain: CognitoUtil, private hubService: HubService, private submenuService: SubmenuService) { }
 	
 	ngOnInit() {
-		/*this.cognitoMain.isAuthenticated().subscribe(
+		this.cognitoMain.isAuthenticated().subscribe(
 			(response: LoginResponse) => {
 				if(response.loggedIn == true){
-					//this.user = this.cognitoMain.getCurrentUser();
+					this.user = this.cognitoMain.getCurrentUser();
 					console.log('setting Nav cognito User');
 					console.log(this.user);
 				}else{
@@ -50,7 +49,7 @@ export class NavComponent implements OnInit {
 				}
 			},
 			err => console.log(err)
-		);*/
+		);
 		
 		this.hubService.getCurrentUser().subscribe(
 			(user) => {

@@ -1,28 +1,22 @@
 <nav aria-label="breadcrumb">
-	<ol class="breadcrumb">
-		<li class="breadcrumb-item" aria-current="page"><a routerLink="/members">Members</a></li>
-		<li class="breadcrumb-item" aria-current="page" *ngIf="member?.orgUnit"><a
-				[routerLink]="['/locations',member.orgUnit.id]">{{member.orgUnit.name}} ({{member.orgUnit.code}})</a>
-		</li>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item" aria-current="page"><a routerLink="/members">Members</a></li>
+    <li class="breadcrumb-item" aria-current="page" *ngIf="member?.orgUnit"><a [routerLink]="['/locations',member.orgUnit.id]">{{member.orgUnit.name}} ({{member.orgUnit.code}})</a></li>
 
-		<li class="breadcrumb-item active" aria-current="page"><span
-				*ngIf="member?.nickname">{{member.nickname}}</span><span *ngIf="!member?.nickname">{{currentId}}</span>
-		</li>
-	</ol>
+    <li class="breadcrumb-item active" aria-current="page"><span *ngIf="member?.nickname">{{member.nickname}}</span><span *ngIf="!member?.nickname">{{currentId}}</span></li>
+  </ol>
 </nav>
 
 <div *ngIf="error" class="alert alert-danger" role="alert">
-	<span>Unable to fetch member information.</span>
+	<span>Unable to fetch member information</span>
 	<div *ngIf="error.status">
 		<span *ngIf="error.status==403">
-			Your user does not have permission to view member information:
+			Your user does not have permission to view member information: 
 			<span *ngIf="error.message!='User is not a member'">{{error.message}}</span>
 			<span *ngIf="error.message=='User is not a member'">You are not currently a member.</span>
-			<br /><a [routerLink]="['/members',hubService.currentUserId]">View your profile to check your membership
-				status.</a>
-
+			<br/><a [routerLink]="['/members',hubService.currentUserId]">View your profile to check your membership status.</a>
 		</span>
-
+		
 	</div>
 </div>
 <ng-container *ngIf="member">
@@ -33,175 +27,214 @@
 			<option *ngFor="let officeOption of userOffices" [ngValue]="officeOption">{{officeOption.name}}</option>
 		</select>
 	</div>
-	<div class="card mb-3">
-		<div class="card-body">
-			<div class="card-header">
-				<h3>{{member.nickname}}</h3>
-				<button type="button" class="btn btn-primary"
-					*ngIf="(member.id==hubService.currentUserId) || selectedOffice?.roles && selectedOffice.roles.indexOf('user_update') !== -1"
-					(click)="editUserModal(editTemplate)">Edit</button>
-				<button type="button" class="btn btn-primary" *ngIf="member.id==hubService.currentUserId"
-					(click)="editPasswordModal(passwordTemplate)">Change Password</button>
-				<button type="button" class="btn btn-primary"
-					*ngIf="selectedOffice?.roles && selectedOffice.roles.indexOf('user_assign') !== -1"
-					(click)="transferModal(transferTemplate)">Transfer</button>
-			</div>
-
-
-			<ul lass="list-group list-group-flush">
-				<li class="list-group-item" *ngIf="member.fullName">
-					<span>Full Name:
-					</span>
-					<span>{{member.fullName}}</span>
-				</li>
-				<li class="list-group-item"><span *ngIf="!member.fullName">Name: </span><span
-						*ngIf="member.fullName">Preferred Name:</span> <span>{{member.nickname}}</span></li>
-				<li class="list-group-item" *ngIf="member.email"><span>Email: </span> <a
-						href="mailto:{{member.email}}"><span>{{member.email}}</span></a></li>
-				<li class="list-group-item" *ngIf="member.address"><span>Address: </span>
-					<span>{{member.address}}</span></li>
-				<li class="list-group-item"><span>Membership Type: </span> <span>{{member.membershipType}}</span>
-					<button type="button" class="btn btn-primary"
-						*ngIf="member.membershipType=='None' && selectedOffice?.roles && selectedOffice.roles.indexOf('user_approve') !== -1"
-						(click)="confirmModal(approveConfirm)">Approve Membership</button>
-
-				</li>
-				<li class="list-group-item" *ngIf="member.membershipNumber"><span>Membership #: </span>
-					<span>{{member.membershipNumber}}</span></li>
-				<li class="list-group-item" *ngIf="member.membershipNumber"><span>Expiration: </span>
-					<span>{{member.membershipExpiration}}</span></li>
-				<li class="list-group-item"><span>Location: </span>
-					<span *ngIf="!member.orgUnit">None</span>
-					<span *ngIf="member.orgUnit"><a
-							[routerLink]="['/locations',member.orgUnit.id]">{{member.orgUnit.name}}
-							({{member.orgUnit.code}})</a></span>
-				</li>
-			</ul>
+	<div class="card"><div class="card-body">
+		<div class="card-header">
+			<h1>{{member.nickname}}</h1>
+			<button type="button" class="btn btn-primary" *ngIf="member.id==hubService.currentUserId" (click)="editUserModal(editTemplate)">Edit</button>
+			<button type="button" class="btn btn-primary" *ngIf="member.id==hubService.currentUserId" (click)="editPasswordModal(passwordTemplate)">Change Password</button>
+			<button type="button" class="btn btn-primary" *ngIf="selectedOffice?.roles && selectedOffice.roles.indexOf('user_assign') !== -1" (click)="transferModal(transferTemplate)">Transfer</button>
 		</div>
-	</div>
+		
+		<ul class="list-group">
+			<li class="list-group-item" *ngIf="member.fullName"><span>Full Name: </span><span>{{member.fullName}}</span></li>
+			<li class="list-group-item"><span *ngIf="!member.fullName">Name: </span><span *ngIf="member.fullName">Preferred Name:</span> <span>{{member.nickname}}</span></li>
+			<li class="list-group-item" *ngIf="member.email"><span>Email: </span> <a href="mailto:{{member.email}}"><span>{{member.email}}</span></a></li>
+			<li class="list-group-item" *ngIf="member.address"><span>Address: </span> <span>{{member.address}}</span></li>
+			<li class="list-group-item"><span>Membership Type: </span> <span>{{member.membershipType}}</span>
+			<button type="button" class="btn btn-primary" *ngIf="member.membershipType=='None' && selectedOffice?.roles && selectedOffice.roles.indexOf('user_approve') !== -1" (click)="confirmModal(approveConfirm)">Approve Membership</button>
+	
+			</li>
+			<li class="list-group-item" *ngIf="member.membershipNumber"><span>Membership #: </span> <span>{{member.membershipNumber}}</span></li>
+			<li class="list-group-item" *ngIf="member.membershipNumber"><span>Expiration: </span> <span>{{member.membershipExpiration}}</span></li>
+			<li class="list-group-item"><span>Location: </span>
+				<span *ngIf="!member.orgUnit">None</span>
+				<span *ngIf="member.orgUnit"><a [routerLink]="['/locations',member.orgUnit.id]">{{member.orgUnit.name}} ({{member.orgUnit.code}})</a></span>
+			</li>
+		</ul>
+	</div></div>
 	<ng-container *ngIf="member.id==hubService.currentUserId">
 		<div *ngIf="member.membershipType=='None'" class="alert alert-danger" role="alert">
-			<strong>You are not currently a member.</strong><br />
-			Once you have attended a WPI Event, you can apply for membership (see website for exceptions).<br />
-			<a href="https://windingpath.club/membership/" target="_blank">See website for information on applying for
-				membership</a>
+			<strong>You are not currently a member.</strong><br/>
+			Once you have attended a WPI Event, you can apply for membership (see website for exceptions).<br/>
+			<a href="https://windingpath.club/membership/" target="_blank">See website for information on applying for membership</a>
 		</div>
 		<div *ngIf="member.membershipType=='Pending'" class="alert alert-warning" role="alert">
-			<strong>Your membership application has been received and your membership is pending.</strong><br />
-			You will be notified once your membership application has been reviewed.<br />
-			<a href="https://windingpath.club/membership/" target="_blank">See website for information on applying for
-				membership</a>
+			<strong>Your membership application has been received and your membership is pending.</strong><br/>
+			You will be notified once your membership application has been reviewed.<br/>
+			<a href="https://windingpath.club/membership/" target="_blank">See website for information on applying for membership</a>
 		</div>
 		<div *ngIf="member.membershipType=='Suspended'" class="alert alert-warning" role="alert">
-			<strong>Your membership has been temporarily suspended</strong><br />
-			<span>For information on your membership status, please contact
-				<span *ngIf="member.orgUnit">the Chapter Owner for <a
-						[routerLink]="['/locations',member.orgUnit.id]">your chapter</a>, or </span>the <a
-					href="mailto:board@windingpath.club" target="_blank">Board of Directors</a></span>
+			<strong>Your membership has been temporarily suspended</strong><br/>
+			<span>For information on your membership status, please contact 
+			<span *ngIf="member.orgUnit">the Chapter Owner for <a [routerLink]="['/locations',member.orgUnit.id]">your chapter</a>, or </span>the <a href="mailto:board@windingpath.club" target="_blank">Board of Directors</a></span>
 		</div>
-		<div *ngIf="member.membershipType=='Resigned' || member.membershipType=='Expelled' || member.membershipType=='Uninvited'"
-			class="alert alert-danger" role="alert">
+		<div *ngIf="member.membershipType=='Resigned' || member.membershipType=='Expelled' || member.membershipType=='Uninvited'" class="alert alert-danger" role="alert">
 			<strong *ngIf="member.membershipType=='Resigned'">You have resigned your membership.</strong>
 			<strong *ngIf="member.membershipType=='Expelled'">You have been expelled from WPI.</strong>
 			<strong *ngIf="member.membershipType=='Uninvited'">You have been uninvited from WPI.</strong>
-			<br />
-			<span>For information on your membership status<span *ngIf="member.membershipType=='Resigned'">, or to ask
-					for your membership to be reopened</span>, please contact the <a
-					href="mailto:board@windingpath.club" target="_blank">Board of Directors</a></span>
+			<br/>
+			<span>For information on your membership status<span *ngIf="member.membershipType=='Resigned'">, or to ask for your membership to be reopened</span>, please contact the <a href="mailto:board@windingpath.club" target="_blank">Board of Directors</a></span>
 		</div>
 	</ng-container>
-
-	<div class="card mb-3" *ngIf="member.offices && member.offices.length">
-		<div class="card-body">
-			<h3 class="card-header">Offices</h3>
-			<ul class="list-group">
-				<li class="list-group-item" *ngFor="let office of member.offices">
-					<span>{{office.name}} ({{office.type}}), <a
-							[routerLink]="['/locations',office.unit.id]">{{office.unit.name}}
-							({{office.unit.code}})</a></span>
-					<span *ngIf="office.email"><a href="mailto:{{office.email}}">{{office.email}}</a></span>
-				</li>
-			</ul>
-		</div>
-	</div>
+	
+	<div class="card" *ngIf="member.offices && member.offices.length"><div class="card-body">
+		<h1 class="card-header">Offices</h1>
+		<ul class="list-group">
+			<li class="list-group-item" *ngFor="let office of member.offices">
+				<span>{{office.name}} ({{office.type}}), <a [routerLink]="['/locations',office.unit.id]">{{office.unit.name}} ({{office.unit.code}})</a></span>
+				<span *ngIf="office.email"><a href="mailto:{{office.email}}">{{office.email}}</a></span>
+			</li>
+		</ul>
+	</div></div>
 	<ng-template #transferTemplate>
+	<div class="modal-header">
+		<h4 class="modal-title pull-left">Transfer {{member.nickname}}</h4>
+		<button type="button" class="close pull-right" aria-label="Close" (click)="doneTransfer()">
+		<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	<div class="modal-body">
+		<app-member-transfer *ngIf="isTransferring" [member]="member" [officer]="selectedOffice" (result)="doneTransfer($event)"></app-member-transfer>
+	</div>
+</ng-template>
+<ng-template #approveConfirm>
+	<div class="modal-body text-center">
+		<p>Are you sure you approve this person's membership?</p>
+		<button type="button" class="btn btn-default" (click)="approveMembership()" >Yes</button>
+		<button type="button" class="btn btn-primary" (click)="confirmModalRef.hide()">No</button>
+	</div>
+</ng-template>
+
+<ng-template #editTemplate>
+	<ng-container *ngIf="editModel">
 		<div class="modal-header">
-			<h4 class="modal-title pull-left">Transfer {{member.nickname}}</h4>
-			<button type="button" class="close pull-right" aria-label="Close" (click)="doneTransfer()">
-				<span aria-hidden="true">&times;</span>
+			<h4 class="modal-title pull-left">Manually Add New Member</h4>
+			<button type="button" class="close pull-right" aria-label="Close" (click)="editModalRef.hide()">
+			<span aria-hidden="true">&times;</span>
 			</button>
 		</div>
 		<div class="modal-body">
-			<app-member-transfer *ngIf="isTransferring" [member]="member" [officer]="selectedOffice"
-				(result)="doneTransfer($event)"></app-member-transfer>
+			<div class="form-group row">
+			<label class="col-sm-3 col-form-label" for="signupName">Name</label>
+			<div class="col-sm-9"><input id="signupName" type="text" maxlength="50" class="form-control" aria-describedby="nameHelpBlock"
+				   [(ngModel)]="editModel.name" [ngModelOptions]="{standalone: true}"></div>
+			<small id="nameHelpBlock" class="form-text text-muted">Use your full name, for member tracking purposes.</small>
 		</div>
-	</ng-template>
-	<ng-template #approveConfirm>
-		<div class="modal-body text-center">
-			<p>Are you sure you approve this person's membership?</p>
-			<button type="button" class="btn btn-default" (click)="approveMembership()">Yes</button>
-			<button type="button" class="btn btn-primary" (click)="confirmModalRef.hide()">No</button>
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label" for="signupNickname">Preferred Name</label>
+			<div class="col-sm-9"><input id="signupNickname" type="text" maxlength="50" class="form-control" aria-describedby="nicknameHelpBlock"
+				   [(ngModel)]="editModel.nickname" [ngModelOptions]="{standalone: true}"></div>
+			<small id="nicknameHelpBlock" class="form-text text-muted">Use Preferred name for how you'd like to be displayed to other users.</small>
 		</div>
-	</ng-template>
-
-	<ng-template #editTemplate>
-		<ng-container *ngIf="editModel">
-			<div class="modal-header">
-				<h4 class="modal-title pull-left">Edit Member</h4>
-				<button type="button" class="close pull-right" aria-label="Close" (click)="editModalRef.hide()">
-					<span aria-hidden="true">&times;</span>
-				</button>
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label" for="signupStreetAddress">Address</label>
+			<div class="col-sm-9"><input id="signupStreetAddress" type="text" maxlength="25" class="form-control"
+				   placeholder="at least 6 characters" length="40" [(ngModel)]="editModel.addressInfo.street_address"
+				   [ngModelOptions]="{standalone: true}"></div>
+		</div>
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label" for="signupCity">City</label>
+			<div class="col-sm-9"><input id="signupCity" type="text" maxlength="25" class="form-control"
+				   placeholder="Anytown" length="40" [(ngModel)]="editModel.addressInfo.locality"
+				   [ngModelOptions]="{standalone: true}"></div>
+		</div>
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label" for="signupState">State</label>
+			<div class="col-sm-9"><input id="signupState" type="text" maxlength="25" class="form-control"
+				   placeholder="NJ" length="10" [(ngModel)]="editModel.addressInfo.region"
+				   [ngModelOptions]="{standalone: true}"></div>
+		</div>
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label" for="signupPostal">Zipcode</label>
+			<div class="col-sm-9"><input id="signupPostal" type="text" maxlength="25" class="form-control"
+				   placeholder="12345" length="10" [(ngModel)]="editModel.addressInfo.postal_code"
+				   [ngModelOptions]="{standalone: true}"></div>
+		</div>
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label" for="signupCountry">Country</label>
+			<div class="col-sm-9"><input id="signupCountry" type="text" maxlength="25" class="form-control"
+				   placeholder="United States" value="United States" length="20" [(ngModel)]="editModel.addressInfo.country"
+				   [ngModelOptions]="{standalone: true}"></div>
+		</div>
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label" for="signupBirthdate">Birthdate</label>
+			<div class="col-sm-9"><input id="signupBirthdate" type="text" maxlength="25" class="form-control"
+				   placeholder="1901-01-31" length="20" [(ngModel)]="editModel.birthdate"
+				   [ngModelOptions]="{standalone: true}"></div>
+		</div>
+			
+			<div class="text-center">
+				<button type="button" class="btn btn-primary" (click)="editUser()">Save Changes</button>
+				<button type="button" class="btn btn-secondary" (click)="editModalRef.hide()">Cancel</button>
 			</div>
-			<div class="modal-body">
-				<div class="form-group row">
-					<label class="col-sm-3 col-form-label" for="signupName">Name</label>
-					<div class="col-sm-9"><input id="signupName" type="text" maxlength="50" class="form-control"
-							aria-describedby="nameHelpBlock" [(ngModel)]="editModel.name"
-							[ngModelOptions]="{standalone: true}"></div>
-					<small id="nameHelpBlock" class="form-text text-muted">Use your full name, for member tracking
-						purposes.</small>
-				</div>
-				<div class="form-group row">
-					<label class="col-sm-3 col-form-label" for="signupNickname">Preferred Name</label>
-					<div class="col-sm-9"><input id="signupNickname" type="text" maxlength="50" class="form-control"
-							aria-describedby="nicknameHelpBlock" [(ngModel)]="editModel.nickname"
-							[ngModelOptions]="{standalone: true}"></div>
-					<small id="nicknameHelpBlock" class="form-text text-muted">Use Preferred name for how you'd like to
-						be displayed to other users.</small>
-				</div>
-				<div class="form-group row">
-					<label class="col-sm-3 col-form-label" for="signupStreetAddress">Address</label>
-					<div class="col-sm-9"><input id="signupStreetAddress" type="text" maxlength="150"
-							class="form-control" placeholder="at least 6 characters" length="150"
-							[(ngModel)]="editModel.address" [ngModelOptions]="{standalone: true}"></div>
-				</div>
+		</div>
+	</ng-container>
+</ng-template>
 
-
-				<div class="text-center">
-					<button type="button" class="btn btn-primary" (click)="editUser()">Save Changes</button>
-					<button type="button" class="btn btn-secondary" (click)="editModalRef.hide()">Cancel</button>
+<ng-template #passwordTemplate>
+	<ng-container *ngIf="passwordChangeModel">
+		<div class="modal-header">
+			<h4 class="modal-title pull-left">Change Password</h4>
+			<button type="button" class="close pull-right" aria-label="Close" (click)="editModalRef.hide()">
+			<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		<div class="modal-body">
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label" for="editCurrentPassword">Current Password</label>
+			<div class="col-sm-9">
+				<input id="editCurrentPassword" type="password" maxlength="50" class="form-control"
+				[(ngModel)]="passwordChangeModel.oldPassword" [ngModelOptions]="{standalone: true}">
+			</div>
+		</div>
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label" for="editNewPassword">New Password</label>
+			<div class="col-sm-9">
+				<input id="editNewPassword" type="password" class="form-control" aria-describedby="passwordHelpBlock"
+				minlength="8" maxlength="50" required pattern="^(?=.*[a-zA-Z])(?=.*\d).*$"
+				[(ngModel)]="passwordChangeModel.newPassword" [ngModelOptions]="{standalone: true}" #passwordField="ngModel">
+				<small id="passwordHelpBlock" class="form-text text-muted">Passwords must be at least 8 characters, with both letters and numbers</small>
+				<div *ngIf="(passwordField.dirty || passwordField.touched)" class="alert alert-secondary">
+					<div>
+						<i *ngIf="passwordChangeModel.newPassword && !passwordField.errors?.minlength && !passwordField.errors?.maxlength" class="material-icons" style="color:green">done</i>
+						<i *ngIf="!passwordChangeModel.newPassword || passwordField.errors?.minlength || passwordField.errors?.maxlength" class="material-icons" style="color:red">clear</i>
+						<span>8 - 50 characters</span>
+					</div>
+					<div>
+						<i *ngIf="passwordChangeModel.newPassword && !passwordField.errors?.pattern" class="material-icons" style="color:green">done</i>
+						<i *ngIf="!passwordChangeModel.newPassword || passwordField.errors?.pattern" class="material-icons" style="color:red">clear</i>
+						<span>Contains both numbers and letters</span>
+					</div>
+					
 				</div>
 			</div>
-		</ng-container>
-	</ng-template>
-
-	<ng-template #passwordTemplate>
-		<ng-container>
-			<div class="modal-header">
-				<h4 class="modal-title pull-left">Reset Password</h4>
-				<button type="button" class="close pull-right" aria-label="Close" (click)="editModalRef.hide()">
-					<span aria-hidden="true">&times;</span>
-				</button>
+		</div>
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label" for="editConfirmPassword">Confirm New Password</label>
+			<div class="col-sm-9"><input id="editConfirmassword" type="password" class="form-control"
+				minlength="8" maxlength="50" validateEqualTo="passwordChangeModel.newPassword"
+				[(ngModel)]="passwordChangeModel.confirmPassword" [ngModelOptions]="{standalone: true}" #confirmPasswordField="ngModel">
+				<div *ngIf="(confirmPasswordField.dirty || confirmPasswordField.touched)"
+				class="alert alert-secondary">
+					<div>
+						<i *ngIf="passwordChangeModel.confirmPassword == passwordChangeModel.newPassword" class="material-icons" style="color:green">done</i>
+						<i *ngIf="passwordChangeModel.confirmPassword != passwordChangeModel.newPassword" class="material-icons" style="color:red">clear</i>
+						<span>Matches New Password</span>
+					</div>
+					
+				</div>	 
 			</div>
-			<div class="modal-body">
-				If you wish to change your password, click the Reset Password button below. You will be sent an email
-				with a link to reset your password.
-				<div class="text-center">
-					<button type="button" class="btn btn-primary" (click)="resetPassword()">Reset Password</button>
-					<button type="button" class="btn btn-secondary" (click)="editModalRef.hide()">Cancel</button>
-				</div>
+		</div>
+		
+			
+			<div class="text-center">
+				<button type="button" class="btn btn-primary" (click)="editPassword()"
+					[disabled]="!passwordChangeModel.oldPassword || ! passwordChangeModel.newPassword || passwordChangeModel.newPassword.errors || passwordChangeModel.newPassword != passwordChangeModel.confirmPassword"
+				>Save Changes</button>
+				<button type="button" class="btn btn-secondary" (click)="editModalRef.hide()">Cancel</button>
 			</div>
+		</div>
 
-		</ng-container>
-	</ng-template>
+	</ng-container>
+</ng-template>
 </ng-container>

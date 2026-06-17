@@ -6,12 +6,12 @@ import { LoginComponent } from './components/login/login.component';
 import { AuthRoutingModule } from './auth-routing.module';
 import { AuthComponent } from './components/auth/auth.component';
 import { PasswordComponent } from './components/password/password.component';
+import { RegisterComponent } from './components/register/register.component';
 import { ConfirmComponent } from './components/confirm/confirm.component';
 import { ResendComponent } from './components/resend/resend.component';
 import { ForgotComponent } from './components/forgot/forgot.component';
 import { LogoutComponent } from './components/logout/logout.component';
 import { RedirectComponent } from './components/redirect/redirect.component';
-import { RegisterComponent } from './components/register/register.component';
 
 @NgModule({
   imports: [
@@ -20,7 +20,7 @@ import { RegisterComponent } from './components/register/register.component';
     BsDatepickerModule.forRoot(),
     AuthRoutingModule
   ],
-  declarations: [LoginComponent, AuthComponent, PasswordComponent, ConfirmComponent, ResendComponent, ForgotComponent, LogoutComponent, RedirectComponent, RegisterComponent]
+  declarations: [LoginComponent, AuthComponent, PasswordComponent, RegisterComponent, ConfirmComponent, ResendComponent, ForgotComponent, LogoutComponent, RedirectComponent]
 })
 export class AuthModule {
 	constructor() {

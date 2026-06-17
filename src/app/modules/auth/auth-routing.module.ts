@@ -25,9 +25,8 @@ import { ResendComponent } from './components/resend/resend.component';
 					{ path: 'resend', component: ResendComponent },
 					{ path: 'login', component: LoginComponent },
 					{ path: 'logout', component: LogoutComponent },
-					{ path: 'register', component: RegisterComponent },
-
 					{ path: 'password', component: PasswordComponent },
+					{ path: 'register', component: RegisterComponent },
 					{ path: 'redirect', component: RedirectComponent, canActivate: [GuardService] },
 
 				]

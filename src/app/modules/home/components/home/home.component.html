@@ -4,14 +4,9 @@
 <h2>Welcome to WPI Member Services</h2>
 <div *ngIf="hubResponse">
 	<div *ngIf="!hubUser">
-		<p><strong>NOTE: Accounts have changed.</strong> If you were previously logging in directly within the Services
-			Hub without being sent to Auth0, you’ll need to register a new account. Your current info will be
-			automatically associated.</p>
-		<p>If you already have an account, <a routerLink="/auth/login">login</a>.</p>
-		<p>If you don’t have an account, <a routerLink="/auth/register">register</a>.</p>
-		<p>If you became a WPI member before this system was launched, you’ll need to make an account if you haven’t
-			already. If you register with the same email you used to apply for membership, your membership will
-			automatically be associated to your account.</p>
+		<p>If you already have an account, <a routerLink="/auth/login">login.</a></p>
+		<p>If you don't have an account, <a routerLink="/auth/register">register!</a></p>
+		<p>If you became a WPI member before this system was launched, you'll need to make an account if you haven't already. If you register with the same email you used to apply for membership, your membership will automatically be associated to your account.</p>
 	</div>
 	<div *ngIf="hubUser">
 		<p class="lead">Hello, {{hubUser.nickname}}!</p>

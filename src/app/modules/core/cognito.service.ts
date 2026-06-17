@@ -9,7 +9,7 @@ import {Subject, BehaviorSubject, ReplaySubject, Observable} from 'rxjs';
 
 
 
-//import {RegistrationUser, RegistrationAddressInfo} from "app/modules/auth/components/register/register.component";
+import {RegistrationUser, RegistrationAddressInfo} from "app/modules/auth/components/register/register.component";
 
 import {
 	AuthenticationDetails,
@@ -315,7 +315,7 @@ export class CognitoUtil {
 		});
 	}
 	
-	/*register(user:RegistrationUser): Observable<CognitoResponse> {
+	register(user:RegistrationUser): Observable<CognitoResponse> {
 		let registerResult = new ReplaySubject<CognitoResponse>();
 		console.log("UserRegistrationService: user is " + user);
 
@@ -337,7 +337,7 @@ export class CognitoUtil {
 			}
 		});
 		return registerResult.asObservable();
-	}*/
+	}
 
 
 	confirmRegistration(username: string, confirmationCode: string): Observable<CognitoResponse> {

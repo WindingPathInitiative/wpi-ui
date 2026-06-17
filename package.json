@@ -21,7 +21,6 @@
     "@angular/platform-browser": "^8.2.14",
     "@angular/platform-browser-dynamic": "^8.2.14",
     "@angular/router": "^8.2.14",
-    "@auth0/auth0-spa-js": "^1.12.1",
     "@ng-select/ng-select": "^3.7.0",
     "@types/moment": "^2.13.0",
     "amazon-cognito-identity-js": "^3.2.0",

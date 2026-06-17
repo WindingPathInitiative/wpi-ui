@@ -3,8 +3,7 @@
   "compilerOptions": {
     "outDir": "../out-tsc/app",
     "baseUrl": "./",
-    "types": ["node"],
-    "experimentalDecorators": true,
+    "types": ["node"]
   },
   "exclude": [
     "test.ts",

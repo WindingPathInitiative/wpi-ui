@@ -1,1 +1,36 @@
-Redirecting to login ....
+<form class="form-signin" method="POST" action="#" role="form">
+	<div class="form-group">
+		<h2>Login</h2>
+	</div>
+	<div *ngIf="errorMessage!=null" class="alert alert-danger">
+		{{ errorMessage }}
+	</div>
+	<div *ngIf="needConfirm" class="alert alert-danger">
+		It looks like you haven't <a [routerLink]="['/auth/confirm',username]">confirmed your email address</a>. Please <a [routerLink]="['/auth/confirm',username]">confirm your email address</a>, then login again. If you don't have the confirmation code, you can <a [routerLink]="['/auth/resend',username]">resend it here</a>.
+	</div>
+	<div *ngIf="notFoundEmail" class="alert alert-danger">
+		It looks like you're attempting to login with your email address. Is your email correct? If so, please <a [routerLink]="['/auth/confirm']">confirm your email</a>, then login again. If you don't have the confirmation code, you can <a [routerLink]="['/auth/resend']">resend it here</a>.
+		<br/>You'll need your username in order to confirm your email address or resend the confirmation code. Don't remember your username? Then just <a [routerLink] = "['/auth/register']">register again</a>!
+	</div>
+	<div class="form-group row">
+		<label class="col-sm-2 control-label" for="loginUsername">Username Or Email</label>
+		<div class="col-sm-6"><input #loginUsername id="loginUsername" required type="email" size="25" maxlength="50" class="form-control" [(ngModel)]="username"
+			   [ngModelOptions]="{standalone: true}"></div>
+	</div>
+
+	<div class="form-group row">
+		<label class="col-sm-2 control-label" for="loginPassword">Password</label>
+		<div class="col-sm-6"><input id="loginPassword" required type="password" size="25" maxlength="50" class="form-control"
+			[(ngModel)]="password" [ngModelOptions]="{standalone: true}"></div>
+	</div>
+	<div class="form-group">
+		<button (click)="onLogin()" [disabled]="submitting" id="signupSubmit" type="submit" class="btn btn-primary btn-block">
+			Login
+		</button>
+	</div>
+	<hr>
+	<a class="btn btn-secondary" role="button" [routerLink]="['/auth/resend']">Resend Code</a>
+	<a class="btn btn-secondary" role="button" [routerLink]="['/auth/register']">Register</a>
+	<a class="btn btn-secondary" role="button" [routerLink]="['/auth/login']">Login</a>
+</form>
+

@@ -3,35 +3,43 @@ import {of as observableOf, Observable} from 'rxjs';
 
 import {catchError, map, first} from 'rxjs/operators';
 import { Injectable, Inject } from '@angular/core';
-import { CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { tap } from 'rxjs/operators';
+import { CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 
-import { AuthService} from 'app/modules/core/auth.service';
+
+
+
+import { CognitoUtil, LoginResponse } from './cognito.service';
 @Injectable()
 export class GuardService implements CanActivate {
 
-	constructor(private authService: AuthService, private router: Router) { }
-	canActivate(
-		next: ActivatedRouteSnapshot,
-		state: RouterStateSnapshot
-	  ): Observable<boolean> | Promise<boolean|UrlTree> | boolean {
-		return this.authService.isVerified().pipe(
-		  tap(loggedIn => {
-			if (!loggedIn) {
-			  this.authService.login(state.url);
+	constructor(@Inject('cognitoMain') private cognitoMain: CognitoUtil, private router: Router) { }
+	canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+		return this.cognitoMain.isAuthenticated().pipe(first(),map(
+			(response:LoginResponse)=>{
+				console.log('map called!');
+				console.log('loggedIn?',response.loggedIn);
+				if(response.loggedIn){
+					console.log('returning true!');
+					return true;
+				}
+				else {
+					console.log('navigating to login!');
+					let returnUrl = '';
+					if(route.queryParams['returnUrl']) returnUrl = route.queryParams['returnUrl'];
+					else returnUrl = state.url;
+					this.router.navigate(['/auth/login'],{ queryParams: { returnUrl: returnUrl }});
+					console.log('returning false!');
+					return false;
+				}
 			}
-		  }),
-		  map((loggedIn) => {
-			  console.log('loggedIn? ',loggedIn);
-			  if(loggedIn == 0) return false;
-			  if(loggedIn == 1) return true;
-			  if(loggedIn == 2){
-				this.router.navigate(['/auth/confirm'])
-				return false;
-			  }
-			  return false;
-		  })
-		);
-	  }
+		),catchError(
+			(err: any, caught: Observable<boolean>) => {
+				console.log('received error!');
+				this.router.navigate(['/auth/login']);
+				return observableOf(false);
+			}
+		),);
+			
+	}
 
 }
