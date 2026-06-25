@@ -1,0 +1,173 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/members">Members</a></li>
+    @if (member()?.orgUnit && $any(member()?.orgUnit)?.id) {
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/locations', $any(member()!.orgUnit).id]">
+          {{ $any(member()!.orgUnit).name }} ({{ $any(member()!.orgUnit).code }})
+        </a>
+      </li>
+    }
+    <li class="breadcrumb-item active" aria-current="page">
+      {{ member()?.nickname ?? currentId }}
+    </li>
+  </ol>
+</nav>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">
+    <span>Unable to fetch member information.</span>
+    @if (error()!.status === 403) {
+      <div>
+        Your user does not have permission to view member information:
+        @if (error()!.message === 'User is not a member') {
+          You are not currently a member.
+        } @else {
+          {{ error()!.message }}
+        }
+        <br /><a [routerLink]="['/members', currentUserId]">View your profile to check your membership status.</a>
+      </div>
+    }
+  </div>
+}
+
+@if (userOffices().length) {
+  <div class="alert alert-info" role="alert">
+    <span>Viewing as office: </span>
+    @if (userOffices().length === 1) {
+      <span>{{ userOffices()[0].name }}</span>
+    } @else {
+      <select class="form-select w-auto d-inline-block" [ngModel]="selectedOffice()"
+        (ngModelChange)="selectedOffice.set($event)">
+        @for (o of userOffices(); track o.id) {
+          <option [ngValue]="o">{{ o.name }}</option>
+        }
+      </select>
+    }
+  </div>
+}
+
+@if (member()) {
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h3 class="mb-0">{{ member()!.nickname }}</h3>
+      <div class="d-flex gap-2">
+        @if (selectedOffice()?.roles?.includes('user_assign')) {
+          <button type="button" class="btn btn-primary btn-sm"
+            (click)="openTransferModal(transferTemplate)">Transfer</button>
+        }
+        @if (member()!.membershipType === 'None' && selectedOffice()?.roles?.includes('user_approve')) {
+          <button type="button" class="btn btn-success btn-sm"
+            (click)="openApproveModal(approveTemplate)">Approve Membership</button>
+        }
+      </div>
+    </div>
+    <ul class="list-group list-group-flush">
+      @if (member()!.fullName) {
+        <li class="list-group-item"><strong>Full Name:</strong> {{ member()!.fullName }}</li>
+      }
+      <li class="list-group-item"><strong>{{ member()!.fullName ? 'Preferred Name' : 'Name' }}:</strong> {{ member()!.nickname }}</li>
+      @if (member()!.email) {
+        <li class="list-group-item"><strong>Email:</strong> <a [href]="'mailto:' + member()!.email">{{ member()!.email }}</a></li>
+      }
+      @if (member()!.address) {
+        <li class="list-group-item"><strong>Address:</strong> {{ member()!.address }}</li>
+      }
+      <li class="list-group-item"><strong>Membership Type:</strong> {{ member()!.membershipType }}</li>
+      @if (member()!.membershipNumber) {
+        <li class="list-group-item"><strong>Membership #:</strong> {{ member()!.membershipNumber }}</li>
+        <li class="list-group-item"><strong>Expiration:</strong> {{ member()!.membershipExpiration }}</li>
+      }
+      <li class="list-group-item">
+        <strong>Location:</strong>
+        @if (!member()!.orgUnit) {
+          None
+        } @else if ($any(member()!.orgUnit)?.id) {
+          <a [routerLink]="['/locations', $any(member()!.orgUnit).id]">
+            {{ $any(member()!.orgUnit).name }} ({{ $any(member()!.orgUnit).code }})
+          </a>
+        }
+      </li>
+    </ul>
+  </div>
+
+  @if (member()!.id === currentUserId) {
+    @switch (member()!.membershipType) {
+      @case ('None') {
+        <div class="alert alert-danger" role="alert">
+          <strong>You are not currently a member.</strong><br />
+          Once you have attended a WPI Event, you can apply for membership.<br />
+          <a href="https://windingpath.club/membership/" target="_blank" rel="noopener">See website for information on applying for membership</a>
+        </div>
+      }
+      @case ('Pending') {
+        <div class="alert alert-warning" role="alert">
+          <strong>Your membership application has been received and your membership is pending.</strong><br />
+          <a href="https://windingpath.club/membership/" target="_blank" rel="noopener">See website for information on applying for membership</a>
+        </div>
+      }
+      @case ('Suspended') {
+        <div class="alert alert-warning" role="alert">
+          <strong>Your membership has been temporarily suspended.</strong>
+        </div>
+      }
+      @case ('Resigned') {
+        <div class="alert alert-danger" role="alert">
+          <strong>You have resigned your membership.</strong> Contact the
+          <a href="mailto:board@windingpath.club" target="_blank">Board of Directors</a> for more info.
+        </div>
+      }
+      @case ('Expelled') {
+        <div class="alert alert-danger" role="alert">
+          <strong>You have been expelled from WPI.</strong>
+        </div>
+      }
+      @case ('Uninvited') {
+        <div class="alert alert-danger" role="alert">
+          <strong>You have been uninvited from WPI.</strong>
+        </div>
+      }
+    }
+  }
+
+  @if (member()!.offices?.length) {
+    <div class="card mb-3">
+      <div class="card-header"><h4 class="mb-0">Offices</h4></div>
+      <ul class="list-group list-group-flush">
+        @for (office of member()!.offices; track office.id) {
+          <li class="list-group-item">
+            {{ office.name }} ({{ office.type }}),
+            <a [routerLink]="['/locations', office.unit?.id]">{{ office.unit?.name }} ({{ office.unit?.code }})</a>
+            @if (office.email) {
+              &mdash; <a [href]="'mailto:' + office.email">{{ office.email }}</a>
+            }
+          </li>
+        }
+      </ul>
+    </div>
+  }
+}
+
+<!-- Transfer modal -->
+<ng-template #transferTemplate let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="transferModalLabel">Transfer {{ member()?.nickname }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="doneTransfer(false, modal)"></button>
+  </div>
+  <div class="modal-body">
+    @if (isTransferring() && member() && selectedOffice()) {
+      <app-member-transfer [member]="member()!" [officer]="selectedOffice()!"
+        (result)="doneTransfer($event, modal)">
+      </app-member-transfer>
+    }
+  </div>
+</ng-template>
+
+<!-- Approve modal -->
+<ng-template #approveTemplate let-modal>
+  <div class="modal-body text-center" id="approveModalLabel">
+    <p>Are you sure you approve this person's membership?</p>
+    <button type="button" class="btn btn-secondary me-2" (click)="approveMembership(); modal.dismiss()">Yes</button>
+    <button type="button" class="btn btn-primary" (click)="modal.dismiss()">No</button>
+  </div>
+</ng-template>

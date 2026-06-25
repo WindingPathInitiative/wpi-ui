@@ -1,8 +1,0 @@
-<div>
-	<app-orgunit-search [parent]="officer.parentOrgID" (selectedOrgUnit)="selectedOrgUnit=$event"></app-orgunit-search>
-	<div *ngIf="selectedOrgUnit" class="text-center">
-		<p>Are you sure you want to transfer {{member.nickname}} to {{selectedOrgUnit.code}}?</p>
-		<button type="button" class="btn btn-default" (click)="transfer()" >Yes</button>
-		<button type="button" class="btn btn-primary" (click)="cancelTransfer()">No</button>
-	</div>
-</div>

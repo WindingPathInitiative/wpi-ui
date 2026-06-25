@@ -1,0 +1,265 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/locations">Locations</a></li>
+    @for (p of (orgUnit()?.parents ?? []); track p.id) {
+      <li class="breadcrumb-item"><a [routerLink]="['/locations', p.id]">{{ p.name }}</a></li>
+    }
+    <li class="breadcrumb-item active" aria-current="page">
+      {{ orgUnit()?.name ?? route.snapshot.params['id'] }}
+    </li>
+  </ol>
+</nav>
+
+@if (orgUnit()) {
+  @if (userOffices().length) {
+    <div class="alert alert-info">
+      <div class="row align-items-center">
+        <div class="col-auto"><span>Viewing as office:</span></div>
+        <div class="col">
+          @if (userOffices().length === 1 || editing()) {
+            <span>{{ userOffices()[0].name }}</span>
+          } @else {
+            <select class="form-select w-auto" [ngModel]="selectedOffice()"
+              (ngModelChange)="onOfficeChange($event)">
+              @for (o of userOffices(); track o.id) {
+                <option [ngValue]="o">{{ o.name }}</option>
+              }
+            </select>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h3 class="mb-0">Location: {{ orgUnit()!.name }}</h3>
+      @if (!editing() && selectedOffice()?.roles?.includes('org_update')) {
+        <button type="button" class="btn btn-link" (click)="editOrg()">Edit</button>
+      }
+    </div>
+
+    @if (!editing()) {
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><strong>Code:</strong> {{ orgUnit()!.code }}</li>
+        <li class="list-group-item"><strong>Name:</strong> {{ orgUnit()!.name }}</li>
+        <li class="list-group-item"><strong>Location:</strong> {{ orgUnit()!.location }}</li>
+        <li class="list-group-item"><strong>Type:</strong> {{ orgUnit()!.type }}</li>
+        @if (orgUnit()!.venueType) {
+          <li class="list-group-item"><strong>Venue Type:</strong> {{ orgUnit()!.venueType }}</li>
+        }
+        <li class="list-group-item"><strong>Website:</strong>
+          <a [href]="orgUnit()!.website" target="_blank" rel="noopener">{{ orgUnit()!.website }}</a>
+        </li>
+        @if (parentOrgUnit()) {
+          <li class="list-group-item"><strong>Parent Location:</strong>
+            <a [routerLink]="['/locations', parentOrgUnit()!.id]">
+              {{ parentOrgUnit()!.name }} ({{ parentOrgUnit()!.code }})
+            </a>
+          </li>
+        }
+      </ul>
+      <div class="card-body"><p>{{ orgUnit()!.defDoc }}</p></div>
+    } @else {
+      <div class="card-body">
+        <div class="mb-2">
+          <label class="form-label">Code</label>
+          <input type="text" class="form-control" [(ngModel)]="editOrgUnit.code" />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-control" [(ngModel)]="editOrgUnit.name" />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Location</label>
+          <input type="text" class="form-control" [(ngModel)]="editOrgUnit.location" />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Website</label>
+          <input type="text" class="form-control" [(ngModel)]="editOrgUnit.website" />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" [(ngModel)]="editOrgUnit.defDoc"></textarea>
+        </div>
+        <button type="button" class="btn btn-primary me-2" (click)="saveOrg()">Save</button>
+        <button type="button" class="btn btn-secondary" (click)="cancelOrg()">Cancel</button>
+      </div>
+    }
+
+    <!-- Officers -->
+    <div class="card mb-3 ms-3 me-3">
+      <div class="card-header"><h4 class="mb-0">Officers</h4></div>
+      @if (!orgUnit()!.offices?.length) {
+        <p class="card-body">None!</p>
+      } @else {
+        <ul class="list-group list-group-flush">
+          @for (office of orgUnit()!.offices; track office.id) {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>
+                {{ office.name }} ({{ office.type }}):
+                @if (!office.user?.membershipNumber) {
+                  Vacant
+                } @else {
+                  <a [routerLink]="['/members', office.user!.id]">
+                    {{ office.user!.nickname }} ({{ office.user!.membershipNumber }})
+                  </a>
+                }
+                @if (office.email) {
+                  &mdash; <a [href]="'mailto:' + office.email">{{ office.email }}</a>
+                }
+              </span>
+              @if (selectedOffice()?.roles?.includes('office_update') ||
+                   selectedOffice()?.roles?.includes('office_assign')) {
+                <button type="button" class="btn btn-outline-primary btn-sm"
+                  (click)="openOfficerModal(office)">View</button>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- Sub-locations -->
+    @if (orgUnit()!.type !== 'Venue') {
+      <div class="card mb-3 ms-3 me-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">Locations in {{ orgUnit()!.name }}</h4>
+          @for (addType of canAddOrgs(); track addType) {
+            <button type="button" class="btn btn-link btn-sm"
+              (click)="openAddOrgModal(addTemplate, addType)">Add {{ addType }}</button>
+          }
+        </div>
+        @if (!orgUnit()!.children?.length) {
+          <p class="card-body">None!</p>
+        } @else {
+          <ul class="list-group list-group-flush">
+            @for (child of orgUnit()!.children; track child.id) {
+              <li class="list-group-item">
+                <a [routerLink]="['/locations', child.id]">{{ child.name }} ({{ child.code }})</a>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <!-- Members -->
+      <div class="card mb-3 ms-3 me-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">Members</h4>
+          @if (!editing() && selectedOffice()?.roles?.includes('user_add')) {
+            <button type="button" class="btn btn-link btn-sm"
+              (click)="openAddUserModal(addUserTemplate)">Manually Add Member</button>
+          }
+        </div>
+        @if (!orgUnit()!.users?.length) {
+          <p class="card-body">None!</p>
+        } @else {
+          <ul class="list-group list-group-flush">
+            @for (member of orgUnit()!.users; track member.id) {
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a [routerLink]="['/members', member.id]">
+                  {{ member.nickname }} ({{ member.membershipNumber }})
+                </a>
+                @if (selectedOffice() && canTransferMember()) {
+                  <button type="button" class="btn btn-outline-primary btn-sm"
+                    (click)="openTransferModal(transferTemplate, member)">Transfer</button>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </div>
+}
+
+<!-- Add org modal -->
+<ng-template #addTemplate let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="addOrgModalLabel">Add New {{ orgModel.type }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="mb-3">
+      <label for="addOrgCode" class="form-label">Code</label>
+      <input type="text" class="form-control" id="addOrgCode" [(ngModel)]="orgModel.code" required />
+    </div>
+    <div class="mb-3">
+      <label for="addOrgName" class="form-label">Name</label>
+      <input type="text" class="form-control" id="addOrgName" [(ngModel)]="orgModel.name" required />
+    </div>
+    <div class="mb-3">
+      <label for="addOrgLocation" class="form-label">Location</label>
+      <input type="text" class="form-control" id="addOrgLocation" [(ngModel)]="orgModel.location" />
+    </div>
+    <div class="mb-3">
+      <label for="addOrgWebsite" class="form-label">Website</label>
+      <input type="text" class="form-control" id="addOrgWebsite" [(ngModel)]="orgModel.website" />
+    </div>
+    @if (orgModel.type === 'Venue') {
+      <div class="mb-3">
+        <p class="fw-bold">Venue Type</p>
+        @for (vt of venueTypes; track $index) {
+          <div class="form-check">
+            <input type="radio" class="form-check-input"
+              [id]="'venue_' + $index" name="venueType"
+              [(ngModel)]="orgModel.venueType" [value]="$any(vt).id" />
+            <label class="form-check-label" [for]="'venue_' + $index">
+              <strong>{{ $any(vt).name }}</strong> ({{ $any(vt).type }})
+            </label>
+          </div>
+        }
+      </div>
+    }
+    <div class="mb-3">
+      <label for="addOrgDesc" class="form-label">Description</label>
+      <textarea class="form-control" id="addOrgDesc" [(ngModel)]="orgModel.defDoc"></textarea>
+    </div>
+    <div class="text-center">
+      <button type="button" class="btn btn-primary me-2" (click)="addOrg(modal)">Add</button>
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Add user modal -->
+<ng-template #addUserTemplate let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="addUserModalLabel">Manually Add New Member</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="row g-2 mb-3">
+      <div class="col-sm-3"><label for="addUserFirst" class="col-form-label">First Name</label></div>
+      <div class="col-sm-9"><input type="text" class="form-control" id="addUserFirst" [(ngModel)]="addUserModel.firstName" required /></div>
+      <div class="col-sm-3"><label for="addUserLast" class="col-form-label">Last Name</label></div>
+      <div class="col-sm-9"><input type="text" class="form-control" id="addUserLast" [(ngModel)]="addUserModel.lastName" required /></div>
+      <div class="col-sm-3"><label for="addUserNick" class="col-form-label">Preferred Name</label></div>
+      <div class="col-sm-9"><input type="text" class="form-control" id="addUserNick" [(ngModel)]="addUserModel.nickname" required /></div>
+      <div class="col-sm-3"><label for="addUserEmail" class="col-form-label">Email</label></div>
+      <div class="col-sm-9"><input type="email" class="form-control" id="addUserEmail" [(ngModel)]="addUserModel.email" required /></div>
+      <div class="col-sm-3"><label class="col-form-label">Location</label></div>
+      <div class="col-sm-9"><span class="form-control-plaintext">{{ orgUnit()!.name }} ({{ orgUnit()!.code }})</span></div>
+    </div>
+    <div class="text-center">
+      <button type="button" class="btn btn-primary me-2" (click)="addUser(modal)">Add User</button>
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Transfer modal -->
+<ng-template #transferTemplate let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="transferModalLabel">Transfer {{ transferringMember?.nickname }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="doneTransfer(false, modal)"></button>
+  </div>
+  <div class="modal-body">
+    @if (isTransferring() && transferringMember && selectedOffice()) {
+      <app-member-transfer [member]="transferringMember!" [officer]="selectedOffice()!"
+        (result)="doneTransfer($event, modal)">
+      </app-member-transfer>
+    }
+  </div>
+</ng-template>

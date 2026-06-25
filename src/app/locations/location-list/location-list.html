@@ -1,0 +1,15 @@
+@if (loading()) {
+  <p>Loading locations...</p>
+} @else if (error()) {
+  <p class="text-danger">Failed to load locations.</p>
+} @else if (!orgUnits().length) {
+  <p>No locations found.</p>
+} @else {
+  <ul class="list-group">
+    @for (orgUnit of orgUnits(); track orgUnit.id) {
+      <li class="list-group-item">
+        <app-location-list-item [orgUnit]="orgUnit" />
+      </li>
+    }
+  </ul>
+}

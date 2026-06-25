@@ -1,0 +1,101 @@
+@if (office) {
+  <div class="modal-header">
+    <h4 class="modal-title">{{ office.name }}</h4>
+    @if (userOffices().length > 1) {
+      <select class="form-select w-auto ms-2"
+        (change)="selectedOffice.set(userOffices()[$any($event.target).selectedIndex])">
+        @for (o of userOffices(); track o.id) {
+          <option [selected]="o === selectedOffice()">{{ o.name }}</option>
+        }
+      </select>
+    } @else if (userOffices().length === 1) {
+      <span class="ms-2">Viewing As: {{ userOffices()[0].name }}</span>
+    }
+    <button type="button" class="btn-close ms-auto" aria-label="Close" (click)="activeModal.dismiss()"></button>
+  </div>
+
+  <div class="modal-body">
+    @if (!isEditing() && !isAdding()) {
+      <ul class="list-unstyled">
+        <li>{{ office.name }} ({{ office.type }})</li>
+        @if (primaryOffice) {
+          <li>Assistant to: {{ primaryOffice.name }} ({{ primaryOffice.type }})</li>
+        }
+        <li>
+          Held by:
+          @if (!office.user?.membershipNumber) {
+            <span>Vacant
+              @if (selectedOffice()?.roles?.includes('office_assign') ||
+                   (selectedOffice()?.id === office.parentOfficeID && selectedOffice()?.roles?.includes('office_create_own_assistants'))) {
+                <button type="button" class="btn btn-sm btn-primary ms-2"
+                  (click)="startHire()">Hire</button>
+              }
+            </span>
+          } @else {
+            <span>
+              <a [routerLink]="['/members', office.user!.id]">
+                {{ office.user!.nickname }} ({{ office.user!.membershipNumber }})
+              </a>
+              @if (selectedOffice()?.roles?.includes('office_assign') ||
+                   (selectedOffice()?.id === office.parentOfficeID && selectedOffice()?.roles?.includes('office_create_own_assistants'))) {
+                <button type="button" class="btn btn-sm btn-primary ms-2"
+                  (click)="vacate()">Vacate</button>
+                <button type="button" class="btn btn-sm btn-primary ms-1"
+                  (click)="startHire()">Replace</button>
+              }
+              @if (currentUserId === office.user!.id) {
+                <button type="button" class="btn btn-sm btn-warning ms-1"
+                  (click)="resign()">Resign</button>
+              }
+            </span>
+          }
+        </li>
+        @if (office.email) {
+          <li>Email: <a [href]="'mailto:' + office.email">{{ office.email }}</a></li>
+        }
+      </ul>
+
+      <div class="d-flex gap-2 flex-wrap">
+        @if (selectedOffice()?.roles?.includes('office_update')) {
+          <button type="button" class="btn btn-primary btn-sm" (click)="isEditing.set(true)">Edit</button>
+        }
+        @if (selectedOffice()?.roles?.includes('office_create_assistants') ||
+             (selectedOffice()?.id === office.id && selectedOffice()?.roles?.includes('office_create_own_assistants'))) {
+          <button type="button" class="btn btn-primary btn-sm" (click)="isAdding.set(true)">Add Assistant</button>
+        }
+        @if (office.parentOfficeID &&
+             (selectedOffice()?.roles?.includes('office_create_assistants') ||
+              (selectedOffice()?.id === office.parentOfficeID && selectedOffice()?.roles?.includes('office_create_own_assistants')))) {
+          <button type="button" class="btn btn-danger btn-sm" (click)="deleteAssistant()">Delete Assistant</button>
+        }
+      </div>
+    }
+
+    @if (isHiring()) {
+      <h5>Select Member for {{ office.name }}</h5>
+      <app-member-search defaultType="Full" [defaultOrgUnitId]="hireOrgUnitId"
+        [disabledTypes]="['None','Resigned','Expelled']"
+        (selectedMember)="selectedHireMember.set($event)">
+      </app-member-search>
+      @if (selectedHireMember()) {
+        <div class="text-center mt-2">
+          <p>Hire {{ selectedHireMember()!.nickname }} for this position?</p>
+          <button type="button" class="btn btn-secondary me-2" (click)="hire()">Yes</button>
+          <button type="button" class="btn btn-primary" (click)="isHiring.set(false); selectedHireMember.set(null)">No</button>
+        </div>
+      }
+    }
+
+    @if (isEditing()) {
+      <app-office-form [office]="office" [officeAuthority]="selectedOffice()!"
+        (officeResult)="editResult($event)">
+      </app-office-form>
+    }
+
+    @if (isAdding()) {
+      <app-office-form [primaryOffice]="office" [officeAuthority]="selectedOffice()!"
+        (officeResult)="addAssistantResult($event)">
+      </app-office-form>
+    }
+  </div>
+}
