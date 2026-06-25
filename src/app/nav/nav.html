@@ -1,0 +1,100 @@
+<!-- Sidebar backdrop -->
+@if (sidebarOpen()) {
+  <div class="sidebar-backdrop" (click)="closeSidebar()" aria-hidden="true"></div>
+}
+
+<!-- Sidebar drawer -->
+<nav class="sidebar" [class.open]="sidebarOpen()" aria-label="Site navigation">
+  <button type="button" class="btn-close btn-close-white mb-3" aria-label="Close navigation"
+    (click)="closeSidebar()"></button>
+
+  <div class="text-center mb-3">
+    <a routerLink="/" (click)="closeSidebar()">
+      <img src="/wpi-web.png" width="120" height="120" alt="WPI Logo" />
+    </a>
+  </div>
+
+  @if (hubUser()) {
+    <div class="text-center mb-2">
+      <h5>{{ hubUser()!.fullName }}</h5>
+      @if (hubUser()!.membershipType === 'Full') {
+        <p class="small">{{ hubUser()!.membershipNumber }}</p>
+      } @else if (hubUser()!.membershipType === 'None') {
+        <p class="small">(Not a member)</p>
+      }
+      <a [routerLink]="['/members', hubUser()!.id]" class="text-white" (click)="closeSidebar()">View Profile</a>
+    </div>
+  }
+
+  <ul class="nav nav-pills flex-column">
+    @if (hubUser()) {
+      <li class="nav-item">
+        <a class="nav-link text-white" routerLink="/members" routerLinkActive="active"
+          (click)="closeSidebar()">Members</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white" routerLink="/locations" routerLinkActive="active"
+          (click)="closeSidebar()">Locations</a>
+      </li>
+    }
+    @if (isAuthenticated()) {
+      <li class="nav-item">
+        <a class="nav-link text-white" href="https://wiki.windingpath.club" target="_blank" rel="noopener">Wiki</a>
+      </li>
+      <li class="nav-item">
+        <button type="button" class="nav-link text-white btn btn-link" (click)="logout(); closeSidebar()">Logout</button>
+      </li>
+    } @else {
+      <li class="nav-item">
+        <button type="button" class="nav-link text-white btn btn-link" (click)="login()">Login / Register</button>
+      </li>
+    }
+  </ul>
+</nav>
+
+<!-- Top navbar -->
+<nav class="navbar navbar-dark bg-dark fixed-top navbar--main" aria-label="Main navigation">
+  <div class="container">
+    <button class="btn btn-link text-white p-0 me-3" type="button" (click)="toggleSidebar()"
+      aria-label="Toggle navigation" [attr.aria-expanded]="sidebarOpen()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+        <path fill-rule="evenodd"
+          d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+      </svg>
+    </button>
+    <a class="navbar-brand" routerLink="/">WPI Services</a>
+
+    <div class="ms-auto d-flex align-items-center gap-2">
+      @if (isAuthenticated()) {
+        @if (!hubUser()) {
+          <span class="text-danger small">Unable to connect to User Hub!</span>
+        }
+        @if (hubUser()) {
+          <a [routerLink]="['/members', hubUser()!.id]" class="text-white text-decoration-none small">
+            <strong>{{ hubUser()!.fullName }}</strong>
+            @if (hubUser()!.membershipType === 'Full') { {{ hubUser()!.membershipNumber }} }
+            @else if (hubUser()!.membershipType === 'None') { (Not a member) }
+          </a>
+        }
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="logout()">Logout</button>
+      } @else {
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="login()">Login</button>
+      }
+    </div>
+  </div>
+</nav>
+
+<!-- Submenu bar -->
+@if (submenu.items().length) {
+  <nav class="navbar fixed-top navbar--secondbar" aria-label="Section navigation">
+    <div class="container">
+      <ul class="navbar-nav flex-row gap-3">
+        @for (item of submenu.items(); track item.path) {
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="item.path" routerLinkActive="active">{{ item.title }}</a>
+          </li>
+        }
+      </ul>
+    </div>
+  </nav>
+}

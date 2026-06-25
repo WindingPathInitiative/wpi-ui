@@ -1,0 +1,11 @@
+@if (orgUnits().length) {
+  <div class="list-group" style="max-height:150px;overflow:auto;margin-bottom:10px;">
+    @for (orgUnit of orgUnits(); track orgUnit.id) {
+      <button type="button" class="list-group-item list-group-item-action"
+        [class.active]="orgUnit === selected()"
+        (click)="select(orgUnit)">
+        {{ orgUnit.code }} {{ orgUnit.name }}
+      </button>
+    }
+  </div>
+}

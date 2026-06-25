@@ -1,9 +1,0 @@
-<div class="list-group" *ngIf="orgUnits && orgUnits.length"
-    style="max-height: 150px;
-    margin-bottom: 10px;
-    overflow:scroll;
-    -webkit-overflow-scrolling: touch;">
-  <button type="button" class="list-group-item list-group-item-action" *ngFor="let orgUnit of orgUnits" [class.active]="orgUnit==selectedOrgUnit" (click)="selectOrgUnit(orgUnit)">
-  	{{orgUnit.code}} {{orgUnit.name}}
-  </button>
-</div>

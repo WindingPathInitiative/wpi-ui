@@ -1,4 +1,0 @@
-Package "ngx-toastr" has an incompatible peer dependency to "@angular/common" (requires "^5.2.0 || ^6.0.0" (extended), would install "8.2.14").
-                  Package "ngx-toastr" has an incompatible peer dependency to "@angular/core" (requires "^5.2.0 || ^6.0.0" (extended), would install "8.2.14").
-                  Package "@ng-select/ng-select" has an incompatible peer dependency to "@angular/forms" (requires ">=5.0.0 <7.0.0" (extended), would install "8.2.14").
-                  Package "ngx-toastr" has an incompatible peer dependency to "@angular/platform-browser" (requires "^5.2.0 || ^6.0.0" (extended), would install "8.2.14").

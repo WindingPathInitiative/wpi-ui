@@ -1,0 +1,11 @@
+<app-orgunit-search [parent]="officer().parentOrgID"
+  (selectedOrgUnit)="selectedOrgUnit.set($event)">
+</app-orgunit-search>
+
+@if (selectedOrgUnit()) {
+  <div class="text-center">
+    <p>Are you sure you want to transfer {{ member().nickname }} to {{ selectedOrgUnit()!.code }}?</p>
+    <button type="button" class="btn btn-secondary me-2" (click)="transfer()">Yes</button>
+    <button type="button" class="btn btn-primary" (click)="cancel()">No</button>
+  </div>
+}

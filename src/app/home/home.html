@@ -1,0 +1,57 @@
+<div class="welcome__logo">
+  <img src="/wpi-web.png" width="150" height="150" class="mb-1" alt="WPI Logo" />
+</div>
+<h2>Welcome to WPI Member Services</h2>
+
+@if (hubUser()) {
+  <p class="lead">Hello, {{ hubUser()!.nickname }}!</p>
+
+  @switch (hubUser()!.membershipType) {
+    @case ('None') {
+      <p>You can access the member list and location pages using the menu.</p>
+      <p>You are not currently a WPI member. View information on your membership status in
+        <a [routerLink]="['/members', hubUser()!.id]">your profile</a>.
+      </p>
+    }
+    @case ('Pending') {
+      <p>Your WPI membership application is currently pending. View information on your membership status in
+        <a [routerLink]="['/members', hubUser()!.id]">your profile</a>.
+      </p>
+    }
+    @case ('Suspended') {
+      <p>Your WPI membership is currently suspended. View information on your membership status in
+        <a [routerLink]="['/members', hubUser()!.id]">your profile</a>.
+      </p>
+    }
+    @case ('Full') {
+      <p>You can access the member list and location pages using the menu.</p>
+      <p>View information on your WPI Membership in
+        <a [routerLink]="['/members', hubUser()!.id]">your profile</a>.
+      </p>
+    }
+    @case ('Resigned') {
+      <p>You have resigned your WPI Membership. View information on your membership status in
+        <a [routerLink]="['/members', hubUser()!.id]">your profile</a>.
+      </p>
+    }
+    @case ('Uninvited') {
+      <p>You have been Uninvited from WPI membership and events. View information on your status in
+        <a [routerLink]="['/members', hubUser()!.id]">your profile</a>.
+      </p>
+    }
+    @case ('Expelled') {
+      <p>You have been expelled from WPI. View information on your status in
+        <a [routerLink]="['/members', hubUser()!.id]">your profile</a>.
+      </p>
+    }
+    @default {
+      <p>You can access the member list and location pages using the menu.</p>
+    }
+  }
+} @else {
+  <p>If you already have an account, <button type="button" class="btn btn-link p-0" (click)="login()">login.</button></p>
+  <p>If you don't have an account, <button type="button" class="btn btn-link p-0" (click)="register()">register!</button></p>
+  <p>If you became a WPI member before this system was launched, you'll need to make an account if you haven't already.
+    If you register with the same email you used to apply for membership, your membership will automatically be
+    associated to your account.</p>
+}

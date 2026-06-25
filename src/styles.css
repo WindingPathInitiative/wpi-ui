@@ -1,0 +1,15 @@
+/* Global application styles */
+body {
+  background-color: #f8f9fa;
+}
+
+/* Offset main content below the fixed-top navbar (and submenu bar when present).
+   Lives in global styles because it coordinates the fixed navbar (NavComponent)
+   with <main> (App) across component boundaries. */
+.page-content {
+  padding-top: 56px;
+}
+
+.page-content.has-submenu {
+  padding-top: 112px;
+}
