@@ -3,10 +3,10 @@ import { environment } from '../../environments/environment';
 
 export const authProviders = provideAuth({
   config: {
-    authority: environment.cognito.authority,
+    authority: environment.keycloak.authority,
     redirectUrl: window.location.origin,
     postLogoutRedirectUri: window.location.origin,
-    clientId: environment.cognito.clientId,
+    clientId: environment.keycloak.clientId,
     scope: 'openid profile email',
     responseType: 'code',
     logLevel: environment.production ? LogLevel.None : LogLevel.Debug,
